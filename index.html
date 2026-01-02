@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>会議やるべき？チェック</title>
+  <meta name="description" content="会議を開く前に5つの質問で判断。AIなし・無料・1ページ完結。" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f6f7fb;
+      color: #222;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { font-size: 22px; margin-bottom: 8px; }
+    p { margin: 6px 0 12px; color: #555; font-size: 14px; }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    }
+    .q { margin-bottom: 14px; }
+    .q-title { margin-bottom: 6px; font-weight: 600; }
+    button {
+      padding: 6px 14px;
+      margin-right: 6px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    button.active {
+      background: #222;
+      color: #fff;
+      border-color: #222;
+    }
+    .judge-btn {
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 24px;
+      font-size: 14px;
+    }
+    .result { font-size: 16px; font-weight: 700; margin-top: 10px; }
+    .hint { font-size: 13px; color: #444; margin-top: 6px; white-space: pre-line; }
+    footer { font-size: 12px; color: #777; text-align: center; margin-top: 30px; }
+  </style>
+</head>
+<body>
+
+<h1>会議やるべき？チェック</h1>
+<p>会議を開く前に、5つの質問で判断します（1分）。</p>
+
+<div class="card" id="questions"></div>
+
+<div class="card">
+  <button class="judge-btn" onclick="judge()">判定する</button>
+  <div class="result" id="result"></div>
+  <div class="hint" id="hint"></div>
+</div>
+
+<footer>AIなし・無料・1ページ完結</footer>
+
+<script>
+const questions = [
+  "今日ここで『決めたいこと』は1文で言える",
+  "最終的にOKを出す決定者が参加する",
+  "参加者全員に役割がある（決める／相談など）",
+  "事前情報（資料・前提）が共有されている",
+  "決まらなかった場合の次アクションが決まっている"
+];
+
+const answers = Array(questions.length).fill(null);
+const qEl = document.getElementById("questions");
+
+questions.forEach((text, i) => {
+  const div = document.createElement("div");
+  div.className = "q";
+  div.innerHTML = `
+    <div class="q-title">${i + 1}. ${text}</div>
+    <button onclick="setAns(${i}, true)">YES</button>
+    <button onclick="setAns(${i}, false)">NO</button>
+  `;
+  qEl.appendChild(div);
+});
+
+function setAns(i, v) {
+  answers[i] = v;
+  const btns = qEl.children[i].querySelectorAll("button");
+  btns.forEach(b => b.classList.remove("active"));
+  btns[v ? 0 : 1].classList.add("active");
+}
+
+function judge() {
+  const yes = answers.filter(v => v === true).length;
+  const result = document.getElementById("result");
+  const hint = document.getElementById("hint");
+
+  if (yes >= 4) {
+    result.textContent = "✅ 会議してOK（短く・決め切る）";
+    hint.textContent =
+      "・30分以内にする\n" +
+      "・冒頭で『今日決めること』を確認\n" +
+      "・最後に宿題（担当・期限）を確定";
+  } else if (yes >= 2) {
+    result.textContent = "⚠️ 非同期推奨（先に文書で整理）";
+    hint.textContent =
+      "まずはチャットや文書で以下を共有：\n" +
+      "・目的（何を決めたいか）\n" +
+      "・選択肢と簡単なメリデメ\n" +
+      "・決定者と期限\n\n" +
+      "必要なら10分だけ会議。";
+  } else {
+    result.textContent = "❌ 会議やめた方がいい";
+    hint.textContent =
+      "このまま会議をすると『話しただけ』で終わる可能性が高いです。\n\n" +
+      "まずやること：\n" +
+      "・決めたいことを1文にする\n" +
+      "・決定者を決める\n" +
+      "・選択肢を2つ出す";
+  }
+}
+</script>
+
+</body>
+</html>
